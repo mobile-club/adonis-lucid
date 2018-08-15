@@ -9,9 +9,8 @@
 
 const knex = require('knex')
 const _ = require('lodash')
-
-
 const KnexFormatter = require('knex/lib/formatter')
+const Hooks = require('../Lucid/Hooks')
 
 KnexFormatter.prototype.compileCallback = function (callback, method) {
   /**
@@ -184,6 +183,20 @@ class Database {
         .knex
         .transaction(function (transactor) {
           transactor.transaction = transaction
+          transactor.hooks = new Hooks()
+          transactor.commit = (function (commit) {
+            return async function () {
+              await commit.call(transactor);
+              await transactor.hooks.exec('transaction', true)
+            }
+          })(transactor.commit)
+          transactor.rollback = (function (rollback) {
+            return async function () {
+              await rollback.call(transactor);
+              await transactor.hooks.exec('transaction', false)
+            }
+          })(transactor.rollback)
+
           resolve(transactor)
         })
 
