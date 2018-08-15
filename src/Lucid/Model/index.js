@@ -573,6 +573,7 @@ class Model extends BaseModel {
     this.$transaction = trx;
     trx.hooks.addHandler('transaction', commited => {
       this.$transaction = null;
+      this.constructor.$hooks.after.exec('transaction', this, commited);
     })
   }
 
