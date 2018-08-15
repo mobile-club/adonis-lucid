@@ -10,6 +10,7 @@
 const knex = require('knex')
 const _ = require('lodash')
 
+
 const KnexFormatter = require('knex/lib/formatter')
 
 KnexFormatter.prototype.compileCallback = function (callback, method) {
@@ -179,11 +180,14 @@ class Database {
    */
   beginTransaction () {
     return new Promise((resolve, reject) => {
-      this
+      const transaction = this
         .knex
-        .transaction(function (trx) {
-          resolve(trx)
-        }).catch(() => {})
+        .transaction(function (transactor) {
+          transactor.transaction = transaction
+          resolve(transactor)
+        })
+
+      transaction.catch(reject)
     })
   }
 

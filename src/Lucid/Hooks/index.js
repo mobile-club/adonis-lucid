@@ -24,7 +24,7 @@ const { resolver } = require('../../../lib/iocResolver')
  */
 class Hooks {
   constructor () {
-    this._events = ['create', 'update', 'delete', 'restore', 'find', 'fetch', 'paginate']
+    this._events = ['create', 'update', 'delete', 'restore', 'find', 'fetch', 'paginate', 'transaction']
 
     /**
      * The event aliases. Whenever a handler is saved for a alias,
