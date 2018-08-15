@@ -63,7 +63,9 @@ class BaseRelation {
     this.RelatedModel = RelatedModel
     this.primaryKey = primaryKey
     this.foreignKey = foreignKey
-    this.relatedQuery = this.RelatedModel.query()
+    this.relatedQuery = parentInstance.$transaction
+      ? this.RelatedModel.query().transacting(parentInstance.$transaction)
+      : this.RelatedModel.query()
 
     /**
      * Storing relation meta-data on the
