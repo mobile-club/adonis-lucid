@@ -271,7 +271,8 @@ class BaseModel {
       '$parent',
       '$frozen',
       '$visible',
-      '$hidden'
+      '$hidden',
+      '$transaction'
     ]
 
     this.$attributes = {}
@@ -283,6 +284,7 @@ class BaseModel {
     this.$frozen = false
     this.$visible = this.constructor.visible
     this.$hidden = this.constructor.hidden
+    this.$transaction = null;
   }
 
   /**

@@ -569,6 +569,13 @@ class Model extends BaseModel {
     this.$originalAttributes = _.clone(this.$attributes)
   }
 
+  _transacting(trx) {
+    this.$transaction = trx;
+    trx.hooks.addHandler('transaction', commited => {
+      this.$transaction = null;
+    })
+  }
+
   /**
    * Insert values to the database. This method will
    * call before and after hooks for `create` and
@@ -604,6 +611,7 @@ class Model extends BaseModel {
      */
     if (trx) {
       query.transacting(trx)
+      this._transacting(trx)
     }
 
     /**
@@ -661,6 +669,7 @@ class Model extends BaseModel {
      */
     if (trx) {
       query.transacting(trx)
+      this._transacting(trx)
     }
 
     if (this.isDirty) {
