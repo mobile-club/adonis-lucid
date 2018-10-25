@@ -64,7 +64,9 @@ class BaseRelation {
     this.RelatedModel = RelatedModel
     this.primaryKey = primaryKey
     this.foreignKey = foreignKey
-    this.relatedQuery = this.RelatedModel.query()
+    this.relatedQuery = parentInstance.$transaction
+      ? this.RelatedModel.query().transacting(parentInstance.$transaction)
+      : this.RelatedModel.query()
 
     /**
      * Storing relation meta-data on the
@@ -93,7 +95,7 @@ class BaseRelation {
      * @return {void}
      */
     this._eagerLoadFn = function (query, fk, values) {
-      query.whereIn(fk, values)
+      query.whereIn(`${this.RelatedModel.table}.${fk}`, values)
     }
 
     /**
@@ -169,7 +171,7 @@ class BaseRelation {
    * @private
    */
   _decorateQuery () {
-    this.relatedQuery.where(this.foreignKey, this.$primaryKeyValue)
+    this.relatedQuery.where(`${this.$foreignTable}.${this.foreignKey}`, this.$primaryKeyValue)
   }
 
   /**

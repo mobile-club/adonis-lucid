@@ -569,6 +569,14 @@ class Model extends BaseModel {
     this.$originalAttributes = _.clone(this.$attributes)
   }
 
+  _transacting(trx) {
+    this.$transaction = trx;
+    trx.hooks.addHandler('transaction', commited => {
+      this.$transaction = null;
+      this.constructor.$hooks.after.exec('transaction', this, commited);
+    })
+  }
+
   /**
    * Insert values to the database. This method will
    * call before and after hooks for `create` and
@@ -604,6 +612,7 @@ class Model extends BaseModel {
      */
     if (trx) {
       query.transacting(trx)
+      this._transacting(trx)
     }
 
     /**
@@ -661,6 +670,7 @@ class Model extends BaseModel {
      */
     if (trx) {
       query.transacting(trx)
+      this._transacting(trx)
     }
 
     if (this.isDirty) {
@@ -799,16 +809,29 @@ class Model extends BaseModel {
    * @method delete
    * @async
    *
+   * @param {Object} trx
+   *
    * @return {Boolean}
    */
-  async delete () {
+  async delete (trx) {
     /**
      * Executing before hooks
      */
     await this.constructor.$hooks.before.exec('delete', this)
 
-    const affected = await this.constructor
-      .query()
+    const query = this.constructor.query()
+
+    /**
+     * If trx is defined then use it for the delete
+     * operation.
+     */
+    if (trx) {
+      query.transacting(trx)
+      this._transacting(trx)
+    }
+
+
+    const affected = await query
       .where(this.constructor.primaryKey, this.primaryKeyValue)
       .ignoreScopes()
       .delete()
