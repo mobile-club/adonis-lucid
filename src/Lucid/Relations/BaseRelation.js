@@ -171,7 +171,7 @@ class BaseRelation {
    * @private
    */
   _decorateQuery () {
-    this.relatedQuery.where(this.foreignKey, this.$primaryKeyValue)
+    this.relatedQuery.where(`${this.$foreignTable}.${this.foreignKey}`, this.$primaryKeyValue)
   }
 
   /**
