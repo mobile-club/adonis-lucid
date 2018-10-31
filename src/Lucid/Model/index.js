@@ -592,6 +592,17 @@ class Model extends BaseModel {
    * @private
    */
   async _insert (trx) {
+    const query = this.constructor.query()
+
+    /**
+     * If trx is defined then use it for the save
+     * operation.
+     */
+    if (trx) {
+      query.transacting(trx)
+      this._transacting(trx)
+    }
+
     /**
      * Executing before hooks
      */
@@ -603,17 +614,6 @@ class Model extends BaseModel {
     this._setCreatedAt(this.$attributes)
     this._setUpdatedAt(this.$attributes)
     this._formatDateFields(this.$attributes)
-
-    const query = this.constructor.query()
-
-    /**
-     * If trx is defined then use it for the save
-     * operation.
-     */
-    if (trx) {
-      query.transacting(trx)
-      this._transacting(trx)
-    }
 
     /**
      * Execute query
@@ -656,12 +656,6 @@ class Model extends BaseModel {
    * @return {Boolean}
    */
   async _update (trx) {
-    /**
-     * Executing before hooks
-     */
-    await this.constructor.$hooks.before.exec('update', this)
-    let affected = 0
-
     const query = this.constructor.query()
 
     /**
@@ -672,6 +666,12 @@ class Model extends BaseModel {
       query.transacting(trx)
       this._transacting(trx)
     }
+
+    /**
+     * Executing before hooks
+     */
+    await this.constructor.$hooks.before.exec('update', this)
+    let affected = 0
 
     if (this.isDirty) {
       /**
@@ -814,11 +814,6 @@ class Model extends BaseModel {
    * @return {Boolean}
    */
   async delete (trx) {
-    /**
-     * Executing before hooks
-     */
-    await this.constructor.$hooks.before.exec('delete', this)
-
     const query = this.constructor.query()
 
     /**
@@ -830,6 +825,10 @@ class Model extends BaseModel {
       this._transacting(trx)
     }
 
+    /**
+     * Executing before hooks
+     */
+    await this.constructor.$hooks.before.exec('delete', this)
 
     const affected = await query
       .where(this.constructor.primaryKey, this.primaryKeyValue)
