@@ -195,8 +195,8 @@ class Model extends BaseModel {
    *
    * @static
    */
-  static query () {
-    const query = new (this.QueryBuilder || QueryBuilder)(this, this.connection)
+  static query (transaction) {
+    const query = new (this.QueryBuilder || QueryBuilder)(this, this.connection, transaction)
 
     /**
      * Listening for query event and executing
@@ -218,8 +218,8 @@ class Model extends BaseModel {
    *
    * @return {QueryBuilder}
    */
-  static queryWithOutScopes () {
-    return this.query().ignoreScopes()
+  static queryWithOutScopes (transaction) {
+    return this.query(transaction).ignoreScopes()
   }
 
   /**

@@ -83,7 +83,7 @@ const queryMethods = [
  * @constructor
  */
 class QueryBuilder {
-  constructor (Model, connection) {
+  constructor (Model, connection, transaction) {
     this.Model = Model
     const table = this.Model.prefix ? `${this.Model.prefix}${this.Model.table}` : this.Model.table
 
@@ -98,11 +98,19 @@ class QueryBuilder {
     this.query = this.db.table(table)
 
     /**
+     * Bind to transaction if given
+     */
+    if (transaction) {
+      this._transaction = transaction;
+      this.query.transacting(transaction);
+    }
+
+    /**
      * SubQuery to be pulled off the query builder. For now this is
      * passed to the `where` closure.
      */
     this.query.subQuery = () => {
-      return this.Model.queryWithOutScopes()
+      return this.Model.queryWithOutScopes(transaction)
     }
 
     /**
@@ -259,6 +267,7 @@ class QueryBuilder {
 
       modelInstance.$visible = this._visibleFields
       modelInstance.$hidden = this._hiddenFields
+      modelInstance.$transaction = this._transaction
     }))
 
     return modelInstance
