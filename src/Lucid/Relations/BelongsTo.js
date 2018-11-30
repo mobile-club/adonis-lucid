@@ -23,26 +23,6 @@ const util = require('../../../lib/util')
  */
 class BelongsTo extends BaseRelation {
   /**
-   * Returns the first row for the related model
-   *
-   * @method first
-   *
-   * @return {Object|Null}
-   */
-  first () {
-    if (!this.parentInstance.$persisted) {
-      throw CE.RuntimeException.unSavedModel(this.parentInstance.constructor.name)
-    }
-
-    if (!util.existy(this.$primaryKeyValue)) {
-      return null
-    }
-
-    this._decorateQuery()
-    return this.relatedQuery.first()
-  }
-
-  /**
    * Map values from model instances to an array. It is required
    * to make `whereIn` query when eagerloading results.
    *
@@ -93,6 +73,10 @@ class BelongsTo extends BaseRelation {
    * @return {Object}
    */
   fetch () {
+    if (!util.existy(this.$primaryKeyValue)) {
+      return null
+    }
+
     return this.first()
   }
 

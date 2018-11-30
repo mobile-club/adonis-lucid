@@ -250,7 +250,10 @@ class BaseRelation {
 
 methodsList.forEach((method) => {
   BaseRelation.prototype[method] = function (...args) {
-    this._validateRead()
+    if (this.primaryKey === this.parentInstance.constructor.primaryKey) {
+      this._validateRead();
+    }
+
     this._decorateQuery()
     return this.relatedQuery[method](...args)
   }
