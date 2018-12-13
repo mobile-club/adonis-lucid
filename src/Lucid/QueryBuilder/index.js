@@ -319,6 +319,12 @@ class QueryBuilder {
     return this
   }
 
+  transacting (transaction) {
+    this._transaction = transaction;
+    this.query.transacting(transaction);
+    return this;
+  }
+
   /**
    * Execute the query builder chain by applying global scopes
    *
